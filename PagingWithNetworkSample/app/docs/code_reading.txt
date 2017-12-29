@@ -1,0 +1,17 @@
+1. 两页面：主页MainActivity和列表页RedditActivity
+2. 3种数据列表: DB+网络，网络Item和网络Page. 纯DB不在本例中，可在PagingSample查看
+3. DB+网络的表现展示与流程
+1) MainActivity -> "DB + NETWORK"
+   -> show(RedditPostRepository.Type.IN_MEMORY_BY_PAGE)
+2) RedditActivity -> RedditActivity.intentFor(context, RedditPostRepository.Type.IN_MEMORY_BY_PAGE)
+   -> new Intent(context, RedditPostRepository.Type.IN_MEMORY_BY_PAGE)
+   -> Intent.put(KEY_REPOSITORY_TYPE, RedditPostRepository.Type.IN_MEMORY_BY_PAGE)
+3) Activity.startActivity(Intent)
+4) RedditActivity -> onCreate()
+   -> setContentView()
+   -> new SubRedditViewModel()
+   -> init adapter for recycler view
+   -> init swipe to refresh view
+   -> init search
+   -> try to read saved search keyword or set default one
+   -> SubRedditViewModel.showSubreddit(keyword)
