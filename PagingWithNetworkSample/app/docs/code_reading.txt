@@ -15,3 +15,83 @@
    -> init search
    -> try to read saved search keyword or set default one
    -> SubRedditViewModel.showSubreddit(keyword)
+
+4. SubRedditViewModel
+1) ViewModelProviders.of(FragmentActivity, ViewModelProvider.Factory）版本
+2) ViewModelProvider.Factory实现
+   -> repoType = Intent.getIntExtra(KEY_REPOSITORY_TYPE, 0) => RedditPostRepository.Type.IN_MEMORY_BY_PAGE
+   -> ServiceLocator.instance(context)
+   -> RedditPostRepository repository = ServiceLocator.getRepository(repoType)
+   -> new SubRedditViewModel(repository)
+
+5. RedditPostRepository接口1个，派生3个分别对应提供3种列表的数据
+接口 Listing<RedditPost> postsOfSubreddit(String subReddit, int pageSize)
+1) DbRedditPostRepository
+    -> 构造: 数据库RedditDb，网络RedditApi, 线程池Executor，每页条目数（默认10）pageSize
+    -> postsOfSubreddit接口实现
+    SubredditBoundaryCallback callback = new SubredditBoundaryCallback() todo:
+    RedditPostDao dao = db.posts()
+    DataSource.Factory<Int, RedditPost> factory = dao.postsBySubreddit()
+    LivePagedListBuilder builder = new LivePagedListBuilder(factory, pageSize)
+    builder.setBoundaryCallback(callback)
+    用Transformations.switchMap来安放刷新的响应，把一个LiveData转成另一个LiveData todo:
+    返回new Listing(列表，网络状态，重试，刷新，刷新状态)
+    -> refresh刷新
+    -> insertResultIntoDb网络请求结果插入到数据库
+
+2) InMemoryByItemRepository todo:
+    -> 构造：网络RedditApi, 线程池
+    -> postsOfSubreddit接口实现
+    DataSource.Factory<Int, RedditPost> factory = new SubRedditDataSourceFactory(...)
+    PagedList.Config conf = new PagedList.Config.Builder（）....build()
+    LivePagedListBuilder builder = new LivePagedListBuilder(factory, config);
+    builder.setBackgroundThreadExecutor(executor)
+    LiveData<PagedList<RedditPost>> pagedList = builder.build()
+    Transformations.switchMap refreshState = ... todo:
+    return new Listing(...)
+
+3) InMemoryByPageKeyRepository todo:
+    -> 构造：网络RedditApi, 线程池
+    -> postsOfSubreddit接口实现
+    DataSource.Factory<Int, RedditPost> factory = new SubRedditDataSourceFactory(...)
+    LivePagedListBuilder builder = new LivePagedListBuilder(factory, pageSize);
+    builder.setBackgroundThreadExecutor(executor)
+    LiveData<PagedList<RedditPost>> pagedList = builder.build()
+    Transformations.switchMap refreshState = ... todo:
+    return new Listing(...)
+
+6. ServiceLocator
+1) 单例创建.instance(
+2) 生成数据仓库RedditPostRepository
+   -> new DbRedditPostRepository -> RedditDb.create(), 网络5线程池Executors.newFixedThreadPool，和RedditApi
+3) 获得网络数据getNetworkExecutor
+4) 获得磁盘数据getDiskIOExecutor
+5) 获得api实例getRedditApi
+
+7. RedditDb，Room数据库封装
+
+8. RedditApi, retrofit封装的api请求
+
+9. PagedList.BoundaryCallback<RedditPost>回调的实现SubredditBoundaryCallback
+    -> onZeroItemsLoaded, 数据库查到0条记录，要开始网络请求
+    -> onItemAtEndLoaded, 用户翻到最后一条记录，向网络请求更多的数据
+    -> onItemAtFrontLoaded, 第一页加载完成第1条记录，不需要做什么
+
+10. RedditPost
+
+11. SubRedditDataSourceFactory, 派生自DataSource.Factory<String, RedditPost>
+    -> 构造：网络RedditApi, keyword, 线程池
+    -> final MutableLiveData<ItemKeyedSubredditDataSource> sourceLiveData = new MutableLiveData<ItemKeyedSubredditDataSource>()
+    -> DataSource<String, RedditPost> create()
+       ItemKeyedSubredditDataSource source = new ItemKeyedSubredditDataSource(api, keyword, executor)
+       sourceLiveData.postValue(source);
+       return source
+
+12. ItemKeyedSubredditDataSource -> ItemKeyedDataSource<String, RedditPost>()
+    -> loadBefore() 忽略
+    -> loadAfter() todo:
+    -> getKey() 返回item的名
+    -> loadInitial() todo:
+
+13. PagedList.Config配置
+    -> place holders, init size, page size,...
