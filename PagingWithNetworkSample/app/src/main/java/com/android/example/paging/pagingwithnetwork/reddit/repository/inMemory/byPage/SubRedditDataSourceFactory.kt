@@ -27,11 +27,16 @@ import java.util.concurrent.Executor
  * This allows us to channel its network request status etc back to the UI. See the Listing creation
  * in the Repository class.
  */
+// 数据源factory, 接收api的retrofit封装，关键字和后台执行网络请求的Executor，create()接口
+// 给LivePagedListBuilder调用，生成DataSource。
+// 构造时保存api的retrofit封装，关键字，和执行网络请求的Executor, 和一个分页数据的LiveData。
 class SubRedditDataSourceFactory(
         private val redditApi: RedditApi,
         private val subredditName: String,
         private val retryExecutor: Executor) : DataSource.Factory<String, RedditPost> {
     val sourceLiveData = MutableLiveData<PageKeyedSubredditDataSource>()
+    // LivePagedListBuilder调用取得DataSource对象，这里新创建PageKeyedSubredditDataSource类型对象，传入
+    // 构造时保存的api封装，关键字和Executor, 并把值post到LiveData后，返回。
     override fun create(): DataSource<String, RedditPost> {
         val source = PageKeyedSubredditDataSource(redditApi, subredditName, retryExecutor)
         sourceLiveData.postValue(source)

@@ -125,6 +125,11 @@ class RedditActivity : AppCompatActivity() {
         })
     }
 
+    // 编辑框(input)的文字(text)去掉首尾空格(trim)后的字符串(toString)，作为参数给(let)闭包{...}执行：
+    // 闭包{...}的参数(it，编辑框文本去掉首尾空格后的字符串)非空(isNotEmpty)时继续执行
+    // 调用ViewModel的showSubreddit方法，把编辑框字符串传进去，如果返回结果为true(表示字符串与先前查询的发生了变化)，继续执行
+    // 列表控件(list)滚动到头部(scrollToPosition(0)), 列表的adapter强转(PostsAdapter)成功后把数据设为null.
+    // SA: SubRedditViewModel.showSubreddit(String)
     private fun updatedSubredditFromInput() {
         input.text.trim().toString().let {
             if (it.isNotEmpty()) {

@@ -24,20 +24,42 @@ import com.android.example.paging.pagingwithnetwork.reddit.repository.RedditPost
 
 /**
  * A RecyclerView ViewHolder that displays a single reddit post.
+ *
+ * 思考：在这个ViewModel里只看到关键字变化时，从仓库加载一页(30个）数据，
+ * 没有翻页逻辑，那么显示加载首页30个数据以后的页面，是什么样的过程（ui转菊花和数据刷新）
+ *
  */
 class SubRedditViewModel(private val repository: RedditPostRepository) : ViewModel() {
+    // 关键字字符串的LiveData,保存当前值，在showSubreddit方法传入新值时，更新新值后触发map操作符，从数据仓库
+    // 读一页数据保存到repoResult里。
     private val subredditName = MutableLiveData<String>()
+    // 关键字字符串被设置给(subredditName)时map操作符把MutableLiveData<String>
+    // 数据(subredditName)映射为Listing<RedditPost>数据(repoResult), 映射过程是从仓库(repository)取该关键字的一页数据(30个)
+    // 这个数据保存有读取数据所有可能的结果：成功获得数据页（Paging库的PagedList<T>），网络状态，刷新状态，以及
+    // 刷新和重试两个方法。
+    // SA: Listing<T>
+    // SA: RedditPostRepository.postsOfSubreddit
     private val repoResult = map(subredditName, {
         repository.postsOfSubreddit(it, 30)
     })
+    // 以关键字获取数据结果Listing<T>数据(repoResult)后，操作符switchMap把取到的数据分页列表
+    // PagedList<T>成员映射到变量posts(LiveData)供外部进行view观察
+    // map和switchMap的区别：前者结果是一个普通数据类型，后者结果则是一个LiveData
+    // SA: Listing.pagedList
     val posts = switchMap(repoResult, { it.pagedList })!!
+    // 与posts类似，把网络状态的LiveData映射出来供外部View观察
     val networkState = switchMap(repoResult, { it.networkState })!!
+    // 与posts类似，把刷新状态的LiveData映射出来供外部View观察
     val refreshState = switchMap(repoResult, { it.refreshState })!!
 
+    // 刷新操作，直接调用Listing的刷新方法refresh()
     fun refresh() {
         repoResult.value?.refresh?.invoke()
     }
 
+    // 显示关键字(subreddit)字符串的内容，若关键字没发生变化，直接返回false，否则更改包装关键字的LiveData的值后返回true.
+    // SA: subredditName关键字LiveData(MutableLiveData<String>)设置为新的字符串后的，触发获取数据流程，map操作符把MutableLiveData<String>
+    // 数据(subredditName)映射为Listing<RedditPost>数据(repoResult), 映射过程是从仓库(repository)取该关键字的一页数据(30个)
     fun showSubreddit(subreddit: String): Boolean {
         if (subredditName.value == subreddit) {
             return false
@@ -46,10 +68,12 @@ class SubRedditViewModel(private val repository: RedditPostRepository) : ViewMod
         return true
     }
 
+    // 重试操作，直接调用Listing的重试方法
     fun retry() {
         val listing = repoResult?.value
         listing?.retry?.invoke()
     }
 
+    // 当前关键字封装subredditName里取值
     fun currentSubreddit(): String? = subredditName.value
 }

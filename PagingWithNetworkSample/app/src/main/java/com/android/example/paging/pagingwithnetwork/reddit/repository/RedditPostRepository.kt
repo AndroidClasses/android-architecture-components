@@ -23,6 +23,8 @@ import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
  * Note: this only exists for sample purposes - typically an app would implement a repo once, either
  * network+db, or network-only
  */
+// 数据仓库接口，查询某个关键字的posts页面，每页pageSize个数据。ViewModel类在关键字改变时调用。
+// 有3种类型的数据仓库实现，取缓存在内存里的网络数据(分页或者按条目标识取)或者同时取数据库+网络数据
 interface RedditPostRepository {
     fun postsOfSubreddit(subReddit: String, pageSize: Int): Listing<RedditPost>
 

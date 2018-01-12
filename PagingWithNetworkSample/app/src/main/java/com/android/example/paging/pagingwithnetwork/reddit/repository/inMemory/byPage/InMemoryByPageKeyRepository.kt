@@ -29,8 +29,14 @@ import java.util.concurrent.Executor
  * Repository implementation that returns a Listing that loads data directly from network by using
  * the previous / next page keys returned in the query.
  */
+// 直接从网络取上一页/下一页数据，网络通过Retrofit封装的api，执行在后台Executor，实现接口postsOfSubreddit()
 class InMemoryByPageKeyRepository(private val redditApi: RedditApi,
                                   private val networkExecutor: Executor) : RedditPostRepository {
+    // 通过LivePagedListBuilder来构建分页请求数据的LiveData, 传进去一页条目数和数据源的factory，返回的
+    // Listing结构保存这个LiveData还有数据源factory里的网络和刷新状态的LiveData(switchMap映射)，并把重试和
+    // 刷新的请求转给PageKeyedSubredditDataSource里的方法retryAllFailed/invalidate()
+    // SA: SubRedditDataSourceFactory, 数据源factory, 接收api的retrofit封装，关键字和后台执行网络请求的Executor，
+    // create()接口给LivePagedListBuilder调用，生成DataSource。
     @MainThread
     override fun postsOfSubreddit(subredditName: String, pageSize: Int): Listing<RedditPost> {
         val sourceFactory = SubRedditDataSourceFactory(redditApi, subredditName, networkExecutor)
