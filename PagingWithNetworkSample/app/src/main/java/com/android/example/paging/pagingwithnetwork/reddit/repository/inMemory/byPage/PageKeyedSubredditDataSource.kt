@@ -19,7 +19,7 @@ package com.android.example.paging.pagingwithnetwork.reddit.repository.inMemory.
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.PageKeyedDataSource
 import com.android.example.paging.pagingwithnetwork.reddit.api.RedditApi
-import com.android.example.paging.pagingwithnetwork.reddit.repository.NetworkState
+import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
 import retrofit2.Call
 import retrofit2.Response
