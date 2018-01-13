@@ -28,7 +28,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import com.android.example.paging.pagingwithnetwork.R
-import com.android.example.paging.pagingwithnetwork.reddit.repository.NetworkState
+import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.skin.SkinServiceLocator
 import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 import com.bumptech.glide.Glide

@@ -16,7 +16,7 @@
 
 package com.android.example.paging.pagingwithnetwork.skin.repository
 
-import com.android.example.paging.pagingwithnetwork.reddit.repository.Listing
+import com.android.example.paging.pagingwithnetwork.base.repository.Listing
 import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 
 /**

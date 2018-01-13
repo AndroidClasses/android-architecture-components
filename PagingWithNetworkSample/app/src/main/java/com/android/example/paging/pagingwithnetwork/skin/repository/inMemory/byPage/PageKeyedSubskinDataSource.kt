@@ -18,7 +18,7 @@ package com.android.example.paging.pagingwithnetwork.skin.repository.inMemory.by
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.PageKeyedDataSource
-import com.android.example.paging.pagingwithnetwork.reddit.repository.NetworkState
+import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.skin.api.SkinApi
 import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 import retrofit2.Call

@@ -19,7 +19,7 @@ package com.android.example.paging.pagingwithnetwork.skin.repository.inMemory.by
 import android.arch.lifecycle.Transformations
 import android.arch.paging.LivePagedListBuilder
 import android.support.annotation.MainThread
-import com.android.example.paging.pagingwithnetwork.reddit.repository.Listing
+import com.android.example.paging.pagingwithnetwork.base.repository.Listing
 import com.android.example.paging.pagingwithnetwork.skin.api.SkinApi
 import com.android.example.paging.pagingwithnetwork.skin.repository.SkinPostRepository
 import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
