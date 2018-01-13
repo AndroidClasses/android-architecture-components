@@ -27,7 +27,7 @@ import java.io.IOException
 import java.util.concurrent.Executor
 
 /**
- * A data source that uses the before/after keys returned in page requests.
+ * A data source that uses the before/current_page keys returned in page requests.
  * <p>
  * See ItemKeyedSubskinDataSource
  */
@@ -78,22 +78,24 @@ class PageKeyedSubskinDataSource(
         skinApi.getTopAfter(
                 after = params.key,
                 limit = params.requestedLoadSize).enqueue(
-                object : retrofit2.Callback<SkinApi.ListingResponse> {
-                    override fun onFailure(call: Call<SkinApi.ListingResponse>, t: Throwable) {
+                object : retrofit2.Callback<SkinApi.ListingData> {
+                    override fun onFailure(call: Call<SkinApi.ListingData>, t: Throwable) {
                         retry = {
                             loadAfter(params, callback)
                         }
                         networkState.postValue(NetworkState.error(t.message ?: "unknown err"))
                     }
 
+                    // todo: 把themes里的url和data.baseUrl拼接，使用map操作符
                     override fun onResponse(
-                            call: Call<SkinApi.ListingResponse>,
-                            response: Response<SkinApi.ListingResponse>) {
+                            call: Call<SkinApi.ListingData>,
+                            response: Response<SkinApi.ListingData>) {
                         if (response.isSuccessful) {
-                            val data = response.body()?.data
-                            val items = data?.children?.map { it.data } ?: emptyList()
+                            val data = response.body()
+                            val items = data?.themes ?: emptyList()
+//                            val items = data?.themes?.map { it.data } ?: emptyList()
                             retry = null
-                            callback.onResult(items, data?.after)
+                            callback.onResult(items, data?.current_page)
                             networkState.postValue(NetworkState.LOADED)
                         } else {
                             retry = {
@@ -124,12 +126,14 @@ class PageKeyedSubskinDataSource(
         // triggered by a refresh, we better execute sync
         try {
             val response = request.execute()
-            val data = response.body()?.data
-            val items = data?.children?.map { it.data } ?: emptyList()
+            val data = response.body()
+            val items = data?.themes ?: emptyList()
+//            val items = data?.themes?.map { it.data } ?: emptyList()
             retry = null
             networkState.postValue(NetworkState.LOADED)
             initialLoad.postValue(NetworkState.LOADED)
-            callback.onResult(items, data?.before, data?.after)
+
+            callback.onResult(items, 0, data?.current_page)
         } catch (ioException: IOException) {
             retry = {
                 loadInitial(params, callback)

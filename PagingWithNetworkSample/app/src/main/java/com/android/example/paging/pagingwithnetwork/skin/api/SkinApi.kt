@@ -31,22 +31,26 @@ import retrofit2.http.Query
  * API communication setup
  */
 interface SkinApi {
-    // for after/before param, either get from SkinDataResponse.after/before,
+    // for current_page/before param, either get from SkinDataResponse.current_page/before,
     // or pass SkinNewsDataResponse.name (though this is technically incorrect)
     @GET("getallfeaturetheme")
     fun getTopAfter(
             @Query("page") after: Int,
-            @Query("pcount") limit: Int): Call<ListingResponse>
+            @Query("pcount") limit: Int): Call<ListingData>
 
-    class ListingResponse(val data: ListingData)
+//    class ListingResponse(val data: ListingData)
 
     class ListingData(
-            val children: List<SkinChildrenResponse>,
-            val after: Int?,
-            val before: Int?
+            val code: Int,
+            val baseResUrl: String,
+            val themes: List<SkinPost>,
+            val current_page: Int,
+            val total_page: Int?,
+            val rec_type: String?
+
     )
 
-    data class SkinChildrenResponse(val data: SkinPost)
+//    data class SkinChildrenResponse(val data: SkinPost)
 
     companion object {
         private const val BASE_URL = "http://www.typany.com/api/"

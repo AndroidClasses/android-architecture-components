@@ -37,12 +37,12 @@ interface RedditApi {
             @Path("subreddit") subreddit: String,
             @Query("limit") limit: Int): Call<ListingResponse>
 
-    // for after/before param, either get from RedditDataResponse.after/before,
+    // for current_page/before param, either get from RedditDataResponse.current_page/before,
     // or pass RedditNewsDataResponse.name (though this is technically incorrect)
     @GET("/r/{subreddit}/hot.json")
     fun getTopAfter(
             @Path("subreddit") subreddit: String,
-            @Query("after") after: String,
+            @Query("current_page") after: String,
             @Query("limit") limit: Int): Call<ListingResponse>
 
     @GET("/r/{subreddit}/hot.json")

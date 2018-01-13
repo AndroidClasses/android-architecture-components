@@ -27,7 +27,7 @@ import java.io.IOException
 import java.util.concurrent.Executor
 
 /**
- * A data source that uses the before/after keys returned in page requests.
+ * A data source that uses the before/current_page keys returned in page requests.
  * <p>
  * See ItemKeyedSubredditDataSource
  */
