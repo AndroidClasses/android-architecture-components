@@ -19,8 +19,8 @@ package com.android.example.paging.pagingwithnetwork.reddit.repository.inMemory
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.Observer
 import android.arch.paging.PagedList
-import com.android.example.paging.pagingwithnetwork.reddit.repository.Listing
-import com.android.example.paging.pagingwithnetwork.reddit.repository.NetworkState
+import com.android.example.paging.pagingwithnetwork.base.repository.Listing
+import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.reddit.repository.RedditPostRepository
 import com.android.example.paging.pagingwithnetwork.reddit.repository.inMemory.byItem.InMemoryByItemRepository
 import com.android.example.paging.pagingwithnetwork.reddit.repository.inMemory.byPage.InMemoryByPageKeyRepository

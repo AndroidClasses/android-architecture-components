@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.repository
+package com.android.example.paging.pagingwithnetwork.base.repository
 
 import android.arch.lifecycle.LiveData
 import android.arch.paging.PagedList

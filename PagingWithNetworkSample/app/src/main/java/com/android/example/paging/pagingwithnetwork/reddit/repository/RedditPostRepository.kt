@@ -16,6 +16,7 @@
 
 package com.android.example.paging.pagingwithnetwork.reddit.repository
 
+import com.android.example.paging.pagingwithnetwork.base.repository.Listing
 import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
 
 /**
