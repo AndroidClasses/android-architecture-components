@@ -33,7 +33,7 @@ data class SkinPost(
     @SerializedName("sn")
     val name: String,
     @SerializedName("ppu")
-    val url: String) {
+    var url: String) {
     // to be consistent w/ changing backend order, we need to keep a data like this
     var indexInResponse: Int = -1
 }

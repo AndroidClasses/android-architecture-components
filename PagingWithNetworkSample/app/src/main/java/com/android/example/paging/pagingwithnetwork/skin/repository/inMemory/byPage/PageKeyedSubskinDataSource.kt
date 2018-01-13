@@ -86,14 +86,13 @@ class PageKeyedSubskinDataSource(
                         networkState.postValue(NetworkState.error(t.message ?: "unknown err"))
                     }
 
-                    // todo: 把themes里的url和data.baseUrl拼接，使用map操作符
                     override fun onResponse(
                             call: Call<SkinApi.ListingData>,
                             response: Response<SkinApi.ListingData>) {
                         if (response.isSuccessful) {
                             val data = response.body()
                             val items = data?.themes ?: emptyList()
-//                            val items = data?.themes?.map { it.data } ?: emptyList()
+                            combineDataItem(data, items)
                             retry = null
                             callback.onResult(items, data?.current_page)
                             networkState.postValue(NetworkState.LOADED)
@@ -128,7 +127,8 @@ class PageKeyedSubskinDataSource(
             val response = request.execute()
             val data = response.body()
             val items = data?.themes ?: emptyList()
-//            val items = data?.themes?.map { it.data } ?: emptyList()
+            combineDataItem(data, items)
+
             retry = null
             networkState.postValue(NetworkState.LOADED)
             initialLoad.postValue(NetworkState.LOADED)
@@ -141,6 +141,14 @@ class PageKeyedSubskinDataSource(
             val error = NetworkState.error(ioException.message ?: "unknown error")
             networkState.postValue(error)
             initialLoad.postValue(error)
+        }
+    }
+
+    // 把themes里的url和data.baseUrl拼接，使用map操作符
+    private fun combineDataItem(data: SkinApi.ListingData?, items: List<SkinPost>) {
+        items.map {
+            it.url = data?.baseResUrl + it.url
+            it.indexInResponse = data?.current_page ?: -1
         }
     }
 }
