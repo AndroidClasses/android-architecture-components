@@ -28,6 +28,7 @@ import com.bumptech.glide.RequestManager
 /**
  * A simple adapter implementation that shows Reddit posts.
  */
+// 分页Adapter派生类，
 class PostsAdapter(
         private val glide: RequestManager,
         private val retryCallback: () -> Unit)

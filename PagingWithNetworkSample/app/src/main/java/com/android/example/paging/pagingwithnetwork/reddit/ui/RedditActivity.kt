@@ -104,13 +104,13 @@ class RedditActivity : AppCompatActivity() {
         }
     }
 
-    // 保留既出前的搜索关键定，重新创建时
+    // 保留既出前的搜索关键词，重新创建时重新读入
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(KEY_SUBREDDIT, model.currentSubreddit())
     }
 
-    // 初始化搜索框
+    // 初始化搜索框，监听事件，更新关键词
     private fun initSearch() {
         input.setOnEditorActionListener({ _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
