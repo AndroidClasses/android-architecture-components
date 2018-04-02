@@ -16,6 +16,8 @@
 
 package com.android.example.github.api;
 
+import android.arch.core.executor.testing.InstantTaskExecutorRule;
+
 import com.android.example.github.util.LiveDataCallAdapterFactory;
 import com.android.example.github.vo.Contributor;
 import com.android.example.github.vo.Repo;
@@ -27,8 +29,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import android.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import java.io.IOException;
 import java.io.InputStream;

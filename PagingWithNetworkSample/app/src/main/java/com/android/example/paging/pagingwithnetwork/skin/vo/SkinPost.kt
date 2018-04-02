@@ -28,11 +28,11 @@ import com.google.gson.annotations.SerializedName;
  * THE SOFTWARE.
  */
 data class SkinPost(
-    @SerializedName("si")
+    @SerializedName("bundleTitle")
     val title: String,
-    @SerializedName("sn")
+    @SerializedName("id")
     val name: String,
-    @SerializedName("ppu")
+    @SerializedName("previewUrl")
     var url: String) {
     // to be consistent w/ changing backend order, we need to keep a data like this
     var indexInResponse: Int = -1

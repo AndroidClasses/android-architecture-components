@@ -75,11 +75,12 @@ class PageKeyedSubskinDataSource(
     // 回调下一页，并发送加载完成的网络状态，否则失败的结果设置重新加载为本页，发送错误的网络状态(FAIL+含错误码的消息)
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, SkinPost>) {
         networkState.postValue(NetworkState.LOADING)
-        skinApi.getTopAfter(
+        skinApi.getSkinList(
+                id = subskinName,
                 after = params.key,
                 limit = params.requestedLoadSize).enqueue(
-                object : retrofit2.Callback<SkinApi.ListingData> {
-                    override fun onFailure(call: Call<SkinApi.ListingData>, t: Throwable) {
+                object : retrofit2.Callback<SkinApi.ListingResponse> {
+                    override fun onFailure(call: Call<SkinApi.ListingResponse>, t: Throwable) {
                         retry = {
                             loadAfter(params, callback)
                         }
@@ -87,14 +88,14 @@ class PageKeyedSubskinDataSource(
                     }
 
                     override fun onResponse(
-                            call: Call<SkinApi.ListingData>,
-                            response: Response<SkinApi.ListingData>) {
+                            call: Call<SkinApi.ListingResponse>,
+                            response: Response<SkinApi.ListingResponse>) {
                         if (response.isSuccessful) {
-                            val data = response.body()
-                            val items = data?.themes ?: emptyList()
-                            combineDataItem(data, items)
+                            val data = response.body()?.data
+                            val items = data?.items ?: emptyList()
+//                            combineDataItem(data, items)
                             retry = null
-                            callback.onResult(items, data?.current_page)
+                            callback.onResult(items, params.key + 1)
                             networkState.postValue(NetworkState.LOADED)
                         } else {
                             retry = {
@@ -115,7 +116,8 @@ class PageKeyedSubskinDataSource(
     override fun loadInitial(
             params: LoadInitialParams<Int>,
             callback: LoadInitialCallback<Int, SkinPost>) {
-        val request = skinApi.getTopAfter(
+        val request = skinApi.getSkinList(
+                id = subskinName,
                 after = 0,
                 limit = params.requestedLoadSize
         )
@@ -125,15 +127,15 @@ class PageKeyedSubskinDataSource(
         // triggered by a refresh, we better execute sync
         try {
             val response = request.execute()
-            val data = response.body()
-            val items = data?.themes ?: emptyList()
-            combineDataItem(data, items)
+            val data = response.body()?.data
+            val items = data?.items ?: emptyList()
+//            combineDataItem(data, items)
 
             retry = null
             networkState.postValue(NetworkState.LOADED)
             initialLoad.postValue(NetworkState.LOADED)
 
-            callback.onResult(items, 0, data?.current_page)
+            callback.onResult(items, 0, 1)
         } catch (ioException: IOException) {
             retry = {
                 loadInitial(params, callback)
@@ -145,10 +147,10 @@ class PageKeyedSubskinDataSource(
     }
 
     // 把themes里的url和data.baseUrl拼接，使用map操作符
-    private fun combineDataItem(data: SkinApi.ListingData?, items: List<SkinPost>) {
-        items.map {
-            it.url = data?.baseResUrl + it.url
-            it.indexInResponse = data?.current_page ?: -1
-        }
-    }
+//    private fun combineDataItem(data: SkinApi.ListingResponse?, items: List<SkinPost>) {
+//        items.map {
+//            it.url = data?.baseResUrl + it.url
+//            it.indexInResponse = data?.current_page ?: -1
+//        }
+//    }
 }

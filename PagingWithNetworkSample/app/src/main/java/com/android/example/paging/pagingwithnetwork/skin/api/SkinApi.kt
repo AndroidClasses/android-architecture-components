@@ -33,27 +33,32 @@ import retrofit2.http.Query
 interface SkinApi {
     // for current_page/before param, either get from SkinDataResponse.current_page/before,
     // or pass SkinNewsDataResponse.name (though this is technically incorrect)
-    @GET("getallfeaturetheme")
-    fun getTopAfter(
+    @GET("getSkinList")
+    fun getSkinList(
+            @Query("id") id: String,
             @Query("page") after: Int,
-            @Query("pcount") limit: Int): Call<ListingData>
+            @Query("pcount") limit: Int): Call<ListingResponse>
 
-//    class ListingResponse(val data: ListingData)
+    class ListingResponse(
+            val code: Int,
+            val msg: String,
+            val data: ListingData
+    )
 
     class ListingData(
-            val code: Int,
-            val baseResUrl: String,
-            val themes: List<SkinPost>,
-            val current_page: Int,
-            val total_page: Int?,
-            val rec_type: String?
+            val moreUrl: String,
+            val items: List<SkinPost>,
+            val bundleTitle: String?,
+            val id: String,
+            val displayMode: Int?
 
     )
 
 //    data class SkinChildrenResponse(val data: SkinPost)
 
     companion object {
-        private const val BASE_URL = "http://www.typany.com/api/"
+//        private const val BASE_URL = "http://www.typany.com/api/"
+        private const val BASE_URL = "http://10.152.102.239:8090/api/"
         fun create(): SkinApi = create(HttpUrl.parse(BASE_URL)!!)
         fun create(httpUrl: HttpUrl): SkinApi {
             val logger = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
@@ -61,9 +66,13 @@ interface SkinApi {
             })
             logger.level = HttpLoggingInterceptor.Level.BASIC
 
+            val commonInterceptor = CommonInterceptor()
+
             val client = OkHttpClient.Builder()
                     .addInterceptor(logger)
+                    .addInterceptor(commonInterceptor)
                     .build()
+
             return Retrofit.Builder()
                     .baseUrl(httpUrl)
                     .client(client)
