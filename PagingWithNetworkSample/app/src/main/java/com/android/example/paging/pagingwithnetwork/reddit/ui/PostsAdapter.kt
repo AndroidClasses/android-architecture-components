@@ -17,20 +17,20 @@
 package com.android.example.paging.pagingwithnetwork.reddit.ui
 
 import android.arch.paging.PagedListAdapter
-import android.support.v7.recyclerview.extensions.DiffCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import com.android.example.paging.pagingwithnetwork.GlideRequests
 import com.android.example.paging.pagingwithnetwork.R
 import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
-import com.bumptech.glide.RequestManager
 
 /**
  * A simple adapter implementation that shows Reddit posts.
  */
 // 分页Adapter派生类，
 class PostsAdapter(
-        private val glide: RequestManager,
+        private val glide: GlideRequests,
         private val retryCallback: () -> Unit)
     : PagedListAdapter<RedditPost, RecyclerView.ViewHolder>(POST_COMPARATOR) {
     private var networkState: NetworkState? = null
@@ -94,7 +94,7 @@ class PostsAdapter(
 
     companion object {
         private val PAYLOAD_SCORE = Any()
-        val POST_COMPARATOR = object : DiffCallback<RedditPost>() {
+        val POST_COMPARATOR = object : DiffUtil.ItemCallback<RedditPost>() {
             override fun areContentsTheSame(oldItem: RedditPost, newItem: RedditPost): Boolean =
                     oldItem == newItem
 
