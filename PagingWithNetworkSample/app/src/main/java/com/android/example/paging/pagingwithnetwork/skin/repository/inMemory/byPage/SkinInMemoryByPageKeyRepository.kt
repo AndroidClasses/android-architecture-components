@@ -38,13 +38,13 @@ class SkinInMemoryByPageKeyRepository(private val skinApi: SkinApi,
     // SA: SubSkinDataSourceFactory, 数据源factory, 接收api的retrofit封装，关键字和后台执行网络请求的Executor，
     // create()接口给LivePagedListBuilder调用，生成DataSource。
     @MainThread
-    override fun postsOfSubskin(subskinName: String, pageSize: Int): Listing<SkinPost> {
-        val sourceFactory = SubSkinDataSourceFactory(skinApi, subskinName, networkExecutor)
+    override fun postsOfSubSkin(subSkinName: String, pageSize: Int): Listing<SkinPost> {
+        val sourceFactory = SubSkinDataSourceFactory(skinApi, subSkinName, networkExecutor)
 
         val livePagedList = LivePagedListBuilder(sourceFactory, pageSize)
                 // provide custom executor for network requests, otherwise it will default to
                 // Arch Components' IO pool which is also used for disk access
-                .setBackgroundThreadExecutor(networkExecutor)
+                .setFetchExecutor(networkExecutor)
                 .build()
 
         val refreshState = Transformations.switchMap(sourceFactory.sourceLiveData) {

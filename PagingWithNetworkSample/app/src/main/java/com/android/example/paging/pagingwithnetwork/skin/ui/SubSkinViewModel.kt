@@ -38,9 +38,9 @@ class SubSkinViewModel(private val repository: SkinPostRepository) : ViewModel()
     // 这个数据保存有读取数据所有可能的结果：成功获得数据页（Paging库的PagedList<T>），网络状态，刷新状态，以及
     // 刷新和重试两个方法。
     // SA: Listing<T>
-    // SA: SkinPostRepository.postsOfSubskin
+    // SA: SkinPostRepository.postsOfSubSkin
     private val repoResult = map(subskinName, {
-        repository.postsOfSubskin(it, 30)
+        repository.postsOfSubSkin(it, 30)
     })
     // 以关键字获取数据结果Listing<T>数据(repoResult)后，操作符switchMap把取到的数据分页列表
     // PagedList<T>成员映射到变量posts(LiveData)供外部进行view观察

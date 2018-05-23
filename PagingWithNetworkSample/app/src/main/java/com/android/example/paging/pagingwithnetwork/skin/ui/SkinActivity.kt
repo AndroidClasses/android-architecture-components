@@ -27,11 +27,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
+import com.android.example.paging.pagingwithnetwork.GlideApp
 import com.android.example.paging.pagingwithnetwork.R
 import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.skin.SkinServiceLocator
 import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
-import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_reddit.*
 
 /**
@@ -78,13 +78,13 @@ class SkinActivity : AppCompatActivity() {
     }
 
     private fun initAdapter() {
-        val glide = Glide.with(this)
+        val glide = GlideApp.with(this)
         val adapter = SkinAdapter(glide) {
             model.retry()
         }
         list.adapter = adapter
         model.posts.observe(this, Observer<PagedList<SkinPost>> {
-            adapter.setList(it)
+            adapter.submitList(it)
         })
         model.networkState.observe(this, Observer {
             adapter.setNetworkState(it)
@@ -134,7 +134,7 @@ class SkinActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 if (model.showSubskin(it)) {
                     list.scrollToPosition(0)
-                    (list.adapter as? SkinAdapter)?.setList(null)
+                    (list.adapter as? SkinAdapter)?.submitList(null)
                 }
             }
         }

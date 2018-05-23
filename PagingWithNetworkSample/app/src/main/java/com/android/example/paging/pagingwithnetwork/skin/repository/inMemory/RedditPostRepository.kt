@@ -27,7 +27,7 @@ import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 // 数据仓库接口，查询某个关键字的posts页面，每页pageSize个数据。ViewModel类在关键字改变时调用。
 // 有3种类型的数据仓库实现，取缓存在内存里的网络数据(分页或者按条目标识取)或者同时取数据库+网络数据
 interface SkinPostRepository {
-    fun postsOfSubskin(subSkin: String, pageSize: Int): Listing<SkinPost>
+    fun postsOfSubSkin(subSkinName: String, pageSize: Int): Listing<SkinPost>
 
     enum class Type {
 //        IN_MEMORY_BY_ITEM,

@@ -33,7 +33,7 @@ import java.util.concurrent.Executor
 class SubSkinDataSourceFactory(
         private val skinApi: SkinApi,
         private val subskinName: String,
-        private val retryExecutor: Executor) : DataSource.Factory<Int, SkinPost> {
+        private val retryExecutor: Executor) : DataSource.Factory<Int, SkinPost>() {
     val sourceLiveData = MutableLiveData<PageKeyedSubskinDataSource>()
     // LivePagedListBuilder调用取得DataSource对象，这里新创建PageKeyedSubskinDataSource类型对象，传入
     // 构造时保存的api封装，关键字和Executor, 并把值post到LiveData后，返回。

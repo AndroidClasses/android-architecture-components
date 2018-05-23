@@ -24,15 +24,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.android.example.paging.pagingwithnetwork.GlideRequests
 import com.android.example.paging.pagingwithnetwork.R
 import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 
 /**
  * A RecyclerView ViewHolder that displays a skin post.
  */
-class SkinPostViewHolder(view: View, private val glide: RequestManager)
+class SkinPostViewHolder(view: View, private val glide: GlideRequests)
     : RecyclerView.ViewHolder(view) {
     private val title: TextView = view.findViewById(R.id.title)
     private val subtitle: TextView = view.findViewById(R.id.subtitle)
@@ -61,13 +60,13 @@ class SkinPostViewHolder(view: View, private val glide: RequestManager)
                     .into(thumbnail)
         } else {
             thumbnail.visibility = View.GONE
-            Glide.clear(thumbnail)
+            glide.clear(thumbnail)
         }
 
     }
 
     companion object {
-        fun create(parent: ViewGroup, glide: RequestManager): SkinPostViewHolder {
+        fun create(parent: ViewGroup, glide: GlideRequests): SkinPostViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.reddit_post_item, parent, false)
             return SkinPostViewHolder(view, glide)
