@@ -18,7 +18,7 @@ package com.android.example.paging.pagingwithnetwork
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.android.example.paging.pagingwithnetwork.reddit.repository.RedditPostRepository
+import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository.Type
 import com.android.example.paging.pagingwithnetwork.reddit.ui.RedditActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -31,17 +31,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         withDatabase.setOnClickListener {
-            show(RedditPostRepository.Type.DB)
+            show(Type.DB)
         }
         networkOnly.setOnClickListener {
-            show(RedditPostRepository.Type.IN_MEMORY_BY_ITEM)
+            show(Type.IN_MEMORY_BY_ITEM)
         }
         networkOnlyWithPageKeys.setOnClickListener {
-            show(RedditPostRepository.Type.IN_MEMORY_BY_PAGE)
+            show(Type.IN_MEMORY_BY_PAGE)
         }
     }
 
-    private fun show(type: RedditPostRepository.Type) {
+    private fun show(type: Type) {
         val intent = RedditActivity.intentFor(this, type)
         startActivity(intent)
     }

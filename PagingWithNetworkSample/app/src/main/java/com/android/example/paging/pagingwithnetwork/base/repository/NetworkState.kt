@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.repository
+package com.android.example.paging.pagingwithnetwork.base.repository
 
 enum class Status {
     RUNNING,

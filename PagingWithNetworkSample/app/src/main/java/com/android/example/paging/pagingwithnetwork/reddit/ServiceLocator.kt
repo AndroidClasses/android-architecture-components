@@ -19,6 +19,8 @@ package com.android.example.paging.pagingwithnetwork.reddit
 import android.app.Application
 import android.content.Context
 import android.support.annotation.VisibleForTesting
+import com.android.example.paging.pagingwithnetwork.base.BaseServiceLocator
+import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository.Type
 import com.android.example.paging.pagingwithnetwork.reddit.api.RedditApi
 import com.android.example.paging.pagingwithnetwork.reddit.db.RedditDb
 import com.android.example.paging.pagingwithnetwork.reddit.repository.RedditPostRepository
@@ -32,7 +34,7 @@ import java.util.concurrent.Executors
  * Super simplified service locator implementation to allow us to replace default implementations
  * for testing.
  */
-interface ServiceLocator {
+interface ServiceLocator : BaseServiceLocator<RedditApi, RedditPostRepository> {
     companion object {
         private val LOCK = Any()
         private var instance: ServiceLocator? = null
@@ -55,14 +57,6 @@ interface ServiceLocator {
             instance = locator
         }
     }
-
-    fun getRepository(type: RedditPostRepository.Type): RedditPostRepository
-
-    fun getNetworkExecutor(): Executor
-
-    fun getDiskIOExecutor(): Executor
-
-    fun getRedditApi(): RedditApi
 }
 
 /**
@@ -85,17 +79,17 @@ open class DefaultServiceLocator(val app: Application, val useInMemoryDb: Boolea
         RedditApi.create()
     }
 
-    override fun getRepository(type: RedditPostRepository.Type): RedditPostRepository {
+    override fun getRepository(type: Type): RedditPostRepository {
         return when (type) {
-            RedditPostRepository.Type.IN_MEMORY_BY_ITEM -> InMemoryByItemRepository(
-                    redditApi = getRedditApi(),
+            Type.IN_MEMORY_BY_ITEM -> InMemoryByItemRepository(
+                    redditApi = getRepoApi(),
                     networkExecutor = getNetworkExecutor())
-            RedditPostRepository.Type.IN_MEMORY_BY_PAGE -> InMemoryByPageKeyRepository(
-                    redditApi = getRedditApi(),
+            Type.IN_MEMORY_BY_PAGE -> InMemoryByPageKeyRepository(
+                    redditApi = getRepoApi(),
                     networkExecutor = getNetworkExecutor())
-            RedditPostRepository.Type.DB -> DbRedditPostRepository(
+            Type.DB -> DbRedditPostRepository(
                     db = db,
-                    redditApi = getRedditApi(),
+                    redditApi = getRepoApi(),
                     ioExecutor = getDiskIOExecutor())
         }
     }
@@ -104,5 +98,5 @@ open class DefaultServiceLocator(val app: Application, val useInMemoryDb: Boolea
 
     override fun getDiskIOExecutor(): Executor = DISK_IO
 
-    override fun getRedditApi(): RedditApi = api
+    override fun getRepoApi(): RedditApi = api
 }

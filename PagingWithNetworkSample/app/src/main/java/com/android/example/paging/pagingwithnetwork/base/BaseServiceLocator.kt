@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.repository
+package com.android.example.paging.pagingwithnetwork.base
 
-import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository
-import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
+import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository.Type
+import java.util.concurrent.Executor
 
 /**
- * Common interface shared by the different repository implementations.
- * Note: this only exists for sample purposes - typically an app would implement a repo once, either
- * network+db, or network-only
+ * Super simplified service locator implementation to allow us to replace default implementations
+ * for testing.
  */
-interface RedditPostRepository : BasePostRepository<RedditPost>
+interface BaseServiceLocator<Api, Repo> {
+    fun getRepository(type: Type): Repo
+    fun getNetworkExecutor(): Executor
+    fun getDiskIOExecutor(): Executor
+    fun getRepoApi(): Api
+}

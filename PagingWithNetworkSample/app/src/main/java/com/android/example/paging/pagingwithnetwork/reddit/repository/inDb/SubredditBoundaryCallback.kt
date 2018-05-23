@@ -20,7 +20,7 @@ import android.arch.paging.PagedList
 import android.arch.paging.PagingRequestHelper
 import android.support.annotation.MainThread
 import com.android.example.paging.pagingwithnetwork.reddit.api.RedditApi
-import com.android.example.paging.pagingwithnetwork.reddit.util.createStatusLiveData
+import com.android.example.paging.pagingwithnetwork.base.util.createStatusLiveData
 import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
 import retrofit2.Call
 import retrofit2.Callback

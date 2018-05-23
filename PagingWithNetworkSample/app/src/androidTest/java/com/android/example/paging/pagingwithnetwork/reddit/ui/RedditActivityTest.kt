@@ -21,10 +21,10 @@ import android.content.Intent
 import android.support.test.InstrumentationRegistry
 import android.support.v7.widget.RecyclerView
 import com.android.example.paging.pagingwithnetwork.R
+import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository.Type
 import com.android.example.paging.pagingwithnetwork.reddit.DefaultServiceLocator
 import com.android.example.paging.pagingwithnetwork.reddit.ServiceLocator
 import com.android.example.paging.pagingwithnetwork.reddit.api.RedditApi
-import com.android.example.paging.pagingwithnetwork.reddit.repository.RedditPostRepository
 import com.android.example.paging.pagingwithnetwork.reddit.ui.RedditActivity.Companion.DEFAULT_SUBREDDIT
 import com.android.example.paging.pagingwithnetwork.repository.FakeRedditApi
 import com.android.example.paging.pagingwithnetwork.repository.PostFactory
@@ -43,11 +43,11 @@ import java.util.concurrent.TimeoutException
  * Simple sanity test to ensure data is displayed
  */
 @RunWith(Parameterized::class)
-class RedditActivityTest(private val type: RedditPostRepository.Type) {
+class RedditActivityTest(private val type: Type) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = RedditPostRepository.Type.values()
+        fun params() = Type.values()
     }
 
     private val postFactory = PostFactory()
@@ -62,7 +62,7 @@ class RedditActivityTest(private val type: RedditPostRepository.Type) {
         ServiceLocator.swap(
                 object : DefaultServiceLocator(app = app,
                         useInMemoryDb = true) {
-                    override fun getRedditApi(): RedditApi = fakeApi
+                    override fun getRepoApi(): RedditApi = fakeApi
                 }
         )
     }

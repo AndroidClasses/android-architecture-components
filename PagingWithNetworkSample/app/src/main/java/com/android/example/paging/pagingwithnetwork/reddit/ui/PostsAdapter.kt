@@ -22,7 +22,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.android.example.paging.pagingwithnetwork.GlideRequests
 import com.android.example.paging.pagingwithnetwork.R
-import com.android.example.paging.pagingwithnetwork.reddit.repository.NetworkState
+import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
+import com.android.example.paging.pagingwithnetwork.base.ui.NetworkStateItemViewHolder
 import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
 
 /**

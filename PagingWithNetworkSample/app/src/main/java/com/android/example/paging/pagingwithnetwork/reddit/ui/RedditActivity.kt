@@ -29,9 +29,9 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import com.android.example.paging.pagingwithnetwork.GlideApp
 import com.android.example.paging.pagingwithnetwork.R
+import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository.Type
+import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.reddit.ServiceLocator
-import com.android.example.paging.pagingwithnetwork.reddit.repository.NetworkState
-import com.android.example.paging.pagingwithnetwork.reddit.repository.RedditPostRepository
 import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
 import kotlinx.android.synthetic.main.activity_reddit.*
 
@@ -45,7 +45,7 @@ class RedditActivity : AppCompatActivity() {
         const val KEY_SUBREDDIT = "subreddit"
         const val DEFAULT_SUBREDDIT = "androiddev"
         const val KEY_REPOSITORY_TYPE = "repository_type"
-        fun intentFor(context: Context, type: RedditPostRepository.Type): Intent {
+        fun intentFor(context: Context, type: Type): Intent {
             val intent = Intent(context, RedditActivity::class.java)
             intent.putExtra(KEY_REPOSITORY_TYPE, type.ordinal)
             return intent
@@ -69,7 +69,7 @@ class RedditActivity : AppCompatActivity() {
         return ViewModelProviders.of(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
                 val repoTypeParam = intent.getIntExtra(KEY_REPOSITORY_TYPE, 0)
-                val repoType = RedditPostRepository.Type.values()[repoTypeParam]
+                val repoType = Type.values()[repoTypeParam]
                 val repo = ServiceLocator.instance(this@RedditActivity)
                         .getRepository(repoType)
                 @Suppress("UNCHECKED_CAST")
