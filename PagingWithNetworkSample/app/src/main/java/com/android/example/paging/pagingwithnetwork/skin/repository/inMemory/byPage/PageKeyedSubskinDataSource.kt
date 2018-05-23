@@ -66,6 +66,7 @@ class PageKeyedSubskinDataSource(
             params: LoadParams<Int>,
             callback: LoadCallback<Int, SkinPost>) {
         // ignored, since we only ever append to our initial load
+        params.requestedLoadSize
     }
 
     // 加载后一页数据，入参含有下一页索引值和页大小（条目数），和取到数据后的回调
@@ -116,10 +117,13 @@ class PageKeyedSubskinDataSource(
     override fun loadInitial(
             params: LoadInitialParams<Int>,
             callback: LoadInitialCallback<Int, SkinPost>) {
+        // 此处requestedLoadSize被设为pageSize的3倍，而Skin服务器的api限制pageSize为某些固定数值
+        // 所以把倍数除去:-(
+        val pageSize = params.requestedLoadSize / 3
         val request = skinApi.getSkinList(
                 id = subskinName,
                 after = 0,
-                limit = params.requestedLoadSize
+                limit = pageSize
         )
         networkState.postValue(NetworkState.LOADING)
         initialLoad.postValue(NetworkState.LOADING)

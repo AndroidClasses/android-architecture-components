@@ -40,7 +40,7 @@ class SubSkinViewModel(private val repository: SkinPostRepository) : ViewModel()
     // SA: Listing<T>
     // SA: SkinPostRepository.postsOfSubSkin
     private val repoResult = map(subskinName, {
-        repository.postsOfSubreddit(it, 30)
+        repository.postsOfSubreddit(it, 24)
     })
     // 以关键字获取数据结果Listing<T>数据(repoResult)后，操作符switchMap把取到的数据分页列表
     // PagedList<T>成员映射到变量posts(LiveData)供外部进行view观察

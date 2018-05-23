@@ -42,7 +42,7 @@ import kotlinx.android.synthetic.main.activity_reddit.*
 class SkinActivity : AppCompatActivity() {
     companion object {
         val KEY_SUBREDDIT = "skin_category_id"
-        val DEFAULT_SUBREDDIT = "10000001"
+        val DEFAULT_SUBREDDIT = "30000007"
 //        val KEY_REPOSITORY_TYPE = "repository_type"
         fun intentFor(context: Context): Intent {
             val intent = Intent(context, SkinActivity::class.java)
