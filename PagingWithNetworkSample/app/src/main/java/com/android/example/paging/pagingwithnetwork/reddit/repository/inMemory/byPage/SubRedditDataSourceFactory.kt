@@ -33,7 +33,7 @@ import java.util.concurrent.Executor
 class SubRedditDataSourceFactory(
         private val redditApi: RedditApi,
         private val subredditName: String,
-        private val retryExecutor: Executor) : DataSource.Factory<String, RedditPost> {
+        private val retryExecutor: Executor) : DataSource.Factory<String, RedditPost>() {
     val sourceLiveData = MutableLiveData<PageKeyedSubredditDataSource>()
     // LivePagedListBuilder调用取得DataSource对象，这里新创建PageKeyedSubredditDataSource类型对象，传入
     // 构造时保存的api封装，关键字和Executor, 并把值post到LiveData后，返回。

@@ -38,13 +38,13 @@ class InMemoryByPageKeyRepository(private val redditApi: RedditApi,
     // SA: SubRedditDataSourceFactory, 数据源factory, 接收api的retrofit封装，关键字和后台执行网络请求的Executor，
     // create()接口给LivePagedListBuilder调用，生成DataSource。
     @MainThread
-    override fun postsOfSubreddit(subredditName: String, pageSize: Int): Listing<RedditPost> {
-        val sourceFactory = SubRedditDataSourceFactory(redditApi, subredditName, networkExecutor)
+    override fun postsOfSubreddit(subReddit: String, pageSize: Int): Listing<RedditPost> {
+        val sourceFactory = SubRedditDataSourceFactory(redditApi, subReddit, networkExecutor)
 
         val livePagedList = LivePagedListBuilder(sourceFactory, pageSize)
                 // provide custom executor for network requests, otherwise it will default to
                 // Arch Components' IO pool which is also used for disk access
-                .setBackgroundThreadExecutor(networkExecutor)
+                .setFetchExecutor(networkExecutor)
                 .build()
 
         val refreshState = Transformations.switchMap(sourceFactory.sourceLiveData) {

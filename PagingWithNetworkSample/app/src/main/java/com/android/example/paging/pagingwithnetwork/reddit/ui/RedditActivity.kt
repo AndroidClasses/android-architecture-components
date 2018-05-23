@@ -25,11 +25,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
+import com.android.example.paging.pagingwithnetwork.GlideApp
 import com.android.example.paging.pagingwithnetwork.R
 import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.reddit.repository.RedditPostRepository
 import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
-import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_reddit.*
 
 /**
@@ -40,11 +40,10 @@ import kotlinx.android.synthetic.main.activity_reddit.*
 class RedditActivity : AppCompatActivity() {
     // 静态常量和函数
     companion object {
-        val KEY_SUBREDDIT = "subreddit"
-        val DEFAULT_SUBREDDIT = "androiddev"
-        val KEY_REPOSITORY_TYPE = "repository_type"
-
         // 根据不同的类型参数，创建不同的Intent，把参数会给activity
+        const val KEY_SUBREDDIT = "subreddit"
+        const val DEFAULT_SUBREDDIT = "androiddev"
+        const val KEY_REPOSITORY_TYPE = "repository_type"
         fun intentFor(context: Context, type: RedditPostRepository.Type): Intent {
             val intent = Intent(context, RedditActivity::class.java)
             intent.putExtra(KEY_REPOSITORY_TYPE, type.ordinal)
@@ -81,13 +80,13 @@ class RedditActivity : AppCompatActivity() {
     // 观察view model里的post列表的LiveData，当数据变化时把分页列表PagedList设置给adapter
     // 观察view model里网络状态(networkState)的LiveData, 数据变化时，设置到adapter里
     private fun initAdapter() {
-        val glide = Glide.with(this)
+        val glide = GlideApp.with(this)
         val adapter = PostsAdapter(glide) {
             model.retry()
         }
         list.adapter = adapter
         model.posts.observe(this, Observer<PagedList<RedditPost>> {
-            adapter.setList(it)
+            adapter.submitList(it)
         })
         model.networkState.observe(this, Observer {
             adapter.setNetworkState(it)
@@ -140,7 +139,7 @@ class RedditActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 if (model.showSubreddit(it)) {
                     list.scrollToPosition(0)
-                    (list.adapter as? PostsAdapter)?.setList(null)
+                    (list.adapter as? PostsAdapter)?.submitList(null)
                 }
             }
         }
