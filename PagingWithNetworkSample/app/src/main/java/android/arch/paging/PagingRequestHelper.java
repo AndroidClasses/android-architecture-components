@@ -398,7 +398,7 @@ public class PagingRequestHelper {
             return "StatusReport{"
                     + "initial=" + initial
                     + ", before=" + before
-                    + ", after=" + after
+                    + ", current_page=" + after
                     + ", mErrors=" + Arrays.toString(mErrors)
                     + '}';
         }

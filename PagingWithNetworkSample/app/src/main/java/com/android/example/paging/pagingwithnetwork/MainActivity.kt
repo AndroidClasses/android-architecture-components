@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository.Type
 import com.android.example.paging.pagingwithnetwork.reddit.ui.RedditActivity
+import com.android.example.paging.pagingwithnetwork.skin.ui.SkinActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
@@ -39,6 +40,15 @@ class MainActivity : AppCompatActivity() {
         networkOnlyWithPageKeys.setOnClickListener {
             show(Type.IN_MEMORY_BY_PAGE)
         }
+
+        skinPageKeys.setOnClickListener {
+            showSkinPage()
+        }
+    }
+
+    private fun showSkinPage() {
+        val intent = SkinActivity.intentFor(this)
+        startActivity(intent)
     }
 
     private fun show(type: Type) {

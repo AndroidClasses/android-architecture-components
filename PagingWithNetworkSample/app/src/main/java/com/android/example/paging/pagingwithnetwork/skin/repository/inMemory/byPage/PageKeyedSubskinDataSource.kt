@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.repository.inMemory.byPage
+package com.android.example.paging.pagingwithnetwork.skin.repository.inMemory.byPage
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.PageKeyedDataSource
-import com.android.example.paging.pagingwithnetwork.reddit.api.RedditApi
 import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
-import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
+import com.android.example.paging.pagingwithnetwork.skin.api.SkinApi
+import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException
@@ -29,14 +29,14 @@ import java.util.concurrent.Executor
 /**
  * A data source that uses the before/current_page keys returned in page requests.
  * <p>
- * See ItemKeyedSubredditDataSource
+ * See ItemKeyedSubskinDataSource
  */
 // 按页取数据的DataSource类，从PageKeyedDataSource派生来，构造传入api封装, 关键字和Executor.
 // 实现重试（retryAllFailed）和刷新（父类invalidate）方法, 保存网络和刷新对应的两个LiveData(networkState和initialLoad)，
-class PageKeyedSubredditDataSource(
-        private val redditApi: RedditApi,
-        private val subredditName: String,
-        private val retryExecutor: Executor) : PageKeyedDataSource<String, RedditPost>() {
+class PageKeyedSubskinDataSource(
+        private val skinApi: SkinApi,
+        private val subskinName: String,
+        private val retryExecutor: Executor) : PageKeyedDataSource<Int, SkinPost>() {
 
     // keep a function reference for the retry event
     // todo: 定义重试方法？？？
@@ -63,8 +63,8 @@ class PageKeyedSubredditDataSource(
 
     // 加载前一页，此处保持空，没有要在首页加载前面插入的页面
     override fun loadBefore(
-            params: LoadParams<String>,
-            callback: LoadCallback<String, RedditPost>) {
+            params: LoadParams<Int>,
+            callback: LoadCallback<Int, SkinPost>) {
         // ignored, since we only ever append to our initial load
     }
 
@@ -73,13 +73,14 @@ class PageKeyedSubredditDataSource(
     // 调用api请求下个页面数据,传入关键字，页码和页面大小，返回结果失败时，设置重试为再执行本次加载，
     // 向网络状态发送error(FAIL+消息); 结果正常返回时，如果是成功的结果，从body取data（前后页码和列表），
     // 回调下一页，并发送加载完成的网络状态，否则失败的结果设置重新加载为本页，发送错误的网络状态(FAIL+含错误码的消息)
-    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, RedditPost>) {
+    override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, SkinPost>) {
         networkState.postValue(NetworkState.LOADING)
-        redditApi.getTopAfter(subreddit = subredditName,
+        skinApi.getSkinList(
+                id = subskinName,
                 after = params.key,
                 limit = params.requestedLoadSize).enqueue(
-                object : retrofit2.Callback<RedditApi.ListingResponse> {
-                    override fun onFailure(call: Call<RedditApi.ListingResponse>, t: Throwable) {
+                object : retrofit2.Callback<SkinApi.ListingResponse> {
+                    override fun onFailure(call: Call<SkinApi.ListingResponse>, t: Throwable) {
                         retry = {
                             loadAfter(params, callback)
                         }
@@ -87,13 +88,14 @@ class PageKeyedSubredditDataSource(
                     }
 
                     override fun onResponse(
-                            call: Call<RedditApi.ListingResponse>,
-                            response: Response<RedditApi.ListingResponse>) {
+                            call: Call<SkinApi.ListingResponse>,
+                            response: Response<SkinApi.ListingResponse>) {
                         if (response.isSuccessful) {
                             val data = response.body()?.data
-                            val items = data?.children?.map { it.data } ?: emptyList()
+                            val items = data?.items ?: emptyList()
+//                            combineDataItem(data, items)
                             retry = null
-                            callback.onResult(items, data?.after)
+                            callback.onResult(items, params.key + 1)
                             networkState.postValue(NetworkState.LOADED)
                         } else {
                             retry = {
@@ -112,10 +114,11 @@ class PageKeyedSubredditDataSource(
     // 请求返回后，成功得到数据则网络与刷新状态发送LOADED和结果数据(callback.onResult),否则
     // 有错误，发送(FAIL+错误信息)到刷新和网络状态
     override fun loadInitial(
-            params: LoadInitialParams<String>,
-            callback: LoadInitialCallback<String, RedditPost>) {
-        val request = redditApi.getTop(
-                subreddit = subredditName,
+            params: LoadInitialParams<Int>,
+            callback: LoadInitialCallback<Int, SkinPost>) {
+        val request = skinApi.getSkinList(
+                id = subskinName,
+                after = 0,
                 limit = params.requestedLoadSize
         )
         networkState.postValue(NetworkState.LOADING)
@@ -125,11 +128,14 @@ class PageKeyedSubredditDataSource(
         try {
             val response = request.execute()
             val data = response.body()?.data
-            val items = data?.children?.map { it.data } ?: emptyList()
+            val items = data?.items ?: emptyList()
+//            combineDataItem(data, items)
+
             retry = null
             networkState.postValue(NetworkState.LOADED)
             initialLoad.postValue(NetworkState.LOADED)
-            callback.onResult(items, data?.before, data?.after)
+
+            callback.onResult(items, 0, 1)
         } catch (ioException: IOException) {
             retry = {
                 loadInitial(params, callback)
@@ -139,4 +145,12 @@ class PageKeyedSubredditDataSource(
             initialLoad.postValue(error)
         }
     }
+
+    // 把themes里的url和data.baseUrl拼接，使用map操作符
+//    private fun combineDataItem(data: SkinApi.ListingResponse?, items: List<SkinPost>) {
+//        items.map {
+//            it.url = data?.baseResUrl + it.url
+//            it.indexInResponse = data?.current_page ?: -1
+//        }
+//    }
 }

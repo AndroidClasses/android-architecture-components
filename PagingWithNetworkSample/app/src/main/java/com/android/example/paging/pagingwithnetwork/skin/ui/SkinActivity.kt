@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.ui
+package com.android.example.paging.pagingwithnetwork.skin.ui
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
@@ -29,11 +29,9 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import com.android.example.paging.pagingwithnetwork.GlideApp
 import com.android.example.paging.pagingwithnetwork.R
-
-import com.android.example.paging.pagingwithnetwork.base.repository.BasePostRepository.Type
 import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
-import com.android.example.paging.pagingwithnetwork.reddit.ServiceLocator
-import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
+import com.android.example.paging.pagingwithnetwork.skin.SkinServiceLocator
+import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 import kotlinx.android.synthetic.main.activity_reddit.*
 
 /**
@@ -41,25 +39,20 @@ import kotlinx.android.synthetic.main.activity_reddit.*
  * <p>
  * The intent arguments can be modified to make it use a different repository (see MainActivity).
  */
-class RedditActivity : AppCompatActivity() {
-    // 静态常量和函数
+class SkinActivity : AppCompatActivity() {
     companion object {
-        // 根据不同的类型参数，创建不同的Intent，把参数会给activity
-        const val KEY_SUBREDDIT = "subreddit"
-        const val DEFAULT_SUBREDDIT = "androiddev"
-        const val KEY_REPOSITORY_TYPE = "repository_type"
-        fun intentFor(context: Context, type: Type): Intent {
-            val intent = Intent(context, RedditActivity::class.java)
-            intent.putExtra(KEY_REPOSITORY_TYPE, type.ordinal)
+        val KEY_SUBREDDIT = "skin_category_id"
+        val DEFAULT_SUBREDDIT = "10000001"
+//        val KEY_REPOSITORY_TYPE = "repository_type"
+        fun intentFor(context: Context): Intent {
+            val intent = Intent(context, SkinActivity::class.java)
+//            intent.putExtra(KEY_REPOSITORY_TYPE, type.ordinal)
             return intent
         }
     }
 
-    // ViewModel对象，todo: lateinit关键字表示对象变量延后赋值？？？
-    private lateinit var model: SubRedditViewModel
+    private lateinit var model: SubSkinViewModel
 
-    // 创建activity对象时，设置content view, 创建view model, 初始化adapter，下拉刷新和搜索框，
-    // 读取之前保存的搜索关键字或者用默认初始值，然后作为参数调用view model的方法显示关键字的数据
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reddit)
@@ -67,36 +60,30 @@ class RedditActivity : AppCompatActivity() {
         initAdapter()
         initSwipeToRefresh()
         initSearch()
-        val subreddit = savedInstanceState?.getString(KEY_SUBREDDIT) ?: DEFAULT_SUBREDDIT
-        model.showSubreddit(subreddit)
+        val subskin = savedInstanceState?.getString(KEY_SUBREDDIT) ?: DEFAULT_SUBREDDIT
+        model.showSubskin(subskin)
     }
 
-    // 创建view model, 通过实现ViewModelProvide.Factory来控制view model构造时把想要的数据来源（仓库类型）
-    // 对应参数和activity的Context传递给对应于它的Factory类(RedditViewModelFactory, 并由创建view model
-    // 同时把参数传过去
-    private fun getViewModel(): SubRedditViewModel {
+    private fun getViewModel(): SubSkinViewModel {
         return ViewModelProviders.of(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                val repoTypeParam = intent.getIntExtra(KEY_REPOSITORY_TYPE, 0)
-                val repoType = Type.values()[repoTypeParam]
-                val repo = ServiceLocator.instance(this@RedditActivity)
-                        .getRepository(repoType)
+//                val repoTypeParam = intent.getIntExtra(KEY_REPOSITORY_TYPE, 0)
+//                val repoType = SkinPostRepository.Type.values()[repoTypeParam]
+                val repo = SkinServiceLocator.instance(this@SkinActivity)
+                        .getRepository()
                 @Suppress("UNCHECKED_CAST")
-                return SubRedditViewModel(repo) as T
+                return SubSkinViewModel(repo) as T
             }
-        })[SubRedditViewModel::class.java]
+        })[SubSkinViewModel::class.java]
     }
 
-    // 初始化图片加载库Glide， 创建页面视图的Adapter（完成后），运行闭包调view model重新取数据(retry)
-    // 观察view model里的post列表的LiveData，当数据变化时把分页列表PagedList设置给adapter
-    // 观察view model里网络状态(networkState)的LiveData, 数据变化时，设置到adapter里
     private fun initAdapter() {
         val glide = GlideApp.with(this)
-        val adapter = PostsAdapter(glide) {
+        val adapter = SkinAdapter(glide) {
             model.retry()
         }
         list.adapter = adapter
-        model.posts.observe(this, Observer<PagedList<RedditPost>> {
+        model.posts.observe(this, Observer<PagedList<SkinPost>> {
             adapter.submitList(it)
         })
         model.networkState.observe(this, Observer {
@@ -104,7 +91,6 @@ class RedditActivity : AppCompatActivity() {
         })
     }
 
-    // 初始化下拉刷新，观察刷新状态LiveData，刷新控件刷新，调view model刷新(refresh)一下
     private fun initSwipeToRefresh() {
         model.refreshState.observe(this, Observer {
             swipe_refresh.isRefreshing = it == NetworkState.LOADING
@@ -114,17 +100,15 @@ class RedditActivity : AppCompatActivity() {
         }
     }
 
-    // 保留既出前的搜索关键词，重新创建时重新读入
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(KEY_SUBREDDIT, model.currentSubreddit())
+        outState.putString(KEY_SUBREDDIT, model.currentSubskin())
     }
 
-    // 初始化搜索框，监听事件，更新关键词
     private fun initSearch() {
         input.setOnEditorActionListener({ _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                updatedSubredditFromInput()
+                updatedSubskinFromInput()
                 true
             } else {
                 false
@@ -132,7 +116,7 @@ class RedditActivity : AppCompatActivity() {
         })
         input.setOnKeyListener({ _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                updatedSubredditFromInput()
+                updatedSubskinFromInput()
                 true
             } else {
                 false
@@ -142,15 +126,15 @@ class RedditActivity : AppCompatActivity() {
 
     // 编辑框(input)的文字(text)去掉首尾空格(trim)后的字符串(toString)，作为参数给(let)闭包{...}执行：
     // 闭包{...}的参数(it，编辑框文本去掉首尾空格后的字符串)非空(isNotEmpty)时继续执行
-    // 调用ViewModel的showSubreddit方法，把编辑框字符串传进去，如果返回结果为true(表示字符串与先前查询的发生了变化)，继续执行
-    // 列表控件(list)滚动到头部(scrollToPosition(0)), 列表的adapter强转(PostsAdapter)成功后把数据设为null.
-    // SA: SubRedditViewModel.showSubreddit(String)
-    private fun updatedSubredditFromInput() {
+    // 调用ViewModel的showSubskin方法，把编辑框字符串传进去，如果返回结果为true(表示字符串与先前查询的发生了变化)，继续执行
+    // 列表控件(list)滚动到头部(scrollToPosition(0)), 列表的adapter强转(SkinAdapter)成功后把数据设为null.
+    // SA: SubSkinViewModel.showSubskin(String)
+    private fun updatedSubskinFromInput() {
         input.text.trim().toString().let {
             if (it.isNotEmpty()) {
-                if (model.showSubreddit(it)) {
+                if (model.showSubskin(it)) {
                     list.scrollToPosition(0)
-                    (list.adapter as? PostsAdapter)?.submitList(null)
+                    (list.adapter as? SkinAdapter)?.submitList(null)
                 }
             }
         }

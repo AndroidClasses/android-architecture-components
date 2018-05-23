@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.api
+package com.android.example.paging.pagingwithnetwork.skin.api
 
 import android.util.Log
-import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
+import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -25,60 +25,60 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
  * API communication setup
  */
-interface RedditApi {
-    @GET("/r/{subreddit}/hot.json")
-    fun getTop(
-            @Path("subreddit") subreddit: String,
-            @Query("limit") limit: Int): Call<ListingResponse>
+interface SkinApi {
+    // for current_page/before param, either get from SkinDataResponse.current_page/before,
+    // or pass SkinNewsDataResponse.name (though this is technically incorrect)
+    @GET("getSkinList")
+    fun getSkinList(
+            @Query("id") id: String,
+            @Query("page") after: Int,
+            @Query("pcount") limit: Int): Call<ListingResponse>
 
-    // for current_page/before param, either get from RedditDataResponse.current_page/before,
-    // or pass RedditNewsDataResponse.name (though this is technically incorrect)
-    @GET("/r/{subreddit}/hot.json")
-    fun getTopAfter(
-            @Path("subreddit") subreddit: String,
-            @Query("current_page") after: String,
-            @Query("limit") limit: Int): Call<ListingResponse>
-
-    @GET("/r/{subreddit}/hot.json")
-    fun getTopBefore(
-            @Path("subreddit") subreddit: String,
-            @Query("before") before: String,
-            @Query("limit") limit: Int): Call<ListingResponse>
-
-    class ListingResponse(val data: ListingData)
-
-    class ListingData(
-            val children: List<RedditChildrenResponse>,
-            val after: String?,
-            val before: String?
+    class ListingResponse(
+            val code: Int,
+            val msg: String,
+            val data: ListingData
     )
 
-    data class RedditChildrenResponse(val data: RedditPost)
+    class ListingData(
+            val moreUrl: String,
+            val items: List<SkinPost>,
+            val bundleTitle: String?,
+            val id: String,
+            val displayMode: Int?
+
+    )
+
+//    data class SkinChildrenResponse(val data: SkinPost)
 
     companion object {
-        private const val BASE_URL = "https://www.reddit.com/"
-        fun create(): RedditApi = create(HttpUrl.parse(BASE_URL)!!)
-        fun create(httpUrl: HttpUrl): RedditApi {
+//        private const val BASE_URL = "http://www.typany.com/api/"
+        private const val BASE_URL = "http://10.152.102.239:8090/api/"
+        fun create(): SkinApi = create(HttpUrl.parse(BASE_URL)!!)
+        fun create(httpUrl: HttpUrl): SkinApi {
             val logger = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
                 Log.d("API", it)
             })
             logger.level = HttpLoggingInterceptor.Level.BASIC
 
+            val commonInterceptor = CommonInterceptor()
+
             val client = OkHttpClient.Builder()
                     .addInterceptor(logger)
+                    .addInterceptor(commonInterceptor)
                     .build()
+
             return Retrofit.Builder()
                     .baseUrl(httpUrl)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
-                    .create(RedditApi::class.java)
+                    .create(SkinApi::class.java)
         }
     }
 }

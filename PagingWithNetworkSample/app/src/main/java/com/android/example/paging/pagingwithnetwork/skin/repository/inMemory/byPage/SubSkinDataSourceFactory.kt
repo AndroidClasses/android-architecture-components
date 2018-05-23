@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.repository.inMemory.byPage
+package com.android.example.paging.pagingwithnetwork.skin.repository.inMemory.byPage
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.DataSource
-import com.android.example.paging.pagingwithnetwork.reddit.api.RedditApi
-import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
+import com.android.example.paging.pagingwithnetwork.skin.api.SkinApi
+import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 import java.util.concurrent.Executor
 
 /**
@@ -30,15 +30,15 @@ import java.util.concurrent.Executor
 // 数据源factory, 接收api的retrofit封装，关键字和后台执行网络请求的Executor，create()接口
 // 给LivePagedListBuilder调用，生成DataSource。
 // 构造时保存api的retrofit封装，关键字，和执行网络请求的Executor, 和一个分页数据的LiveData。
-class SubRedditDataSourceFactory(
-        private val redditApi: RedditApi,
-        private val subredditName: String,
-        private val retryExecutor: Executor) : DataSource.Factory<String, RedditPost>() {
-    val sourceLiveData = MutableLiveData<PageKeyedSubredditDataSource>()
-    // LivePagedListBuilder调用取得DataSource对象，这里新创建PageKeyedSubredditDataSource类型对象，传入
+class SubSkinDataSourceFactory(
+        private val skinApi: SkinApi,
+        private val subskinName: String,
+        private val retryExecutor: Executor) : DataSource.Factory<Int, SkinPost>() {
+    val sourceLiveData = MutableLiveData<PageKeyedSubskinDataSource>()
+    // LivePagedListBuilder调用取得DataSource对象，这里新创建PageKeyedSubskinDataSource类型对象，传入
     // 构造时保存的api封装，关键字和Executor, 并把值post到LiveData后，返回。
-    override fun create(): DataSource<String, RedditPost> {
-        val source = PageKeyedSubredditDataSource(redditApi, subredditName, retryExecutor)
+    override fun create(): DataSource<Int, SkinPost> {
+        val source = PageKeyedSubskinDataSource(skinApi, subskinName, retryExecutor)
         sourceLiveData.postValue(source)
         return source
     }

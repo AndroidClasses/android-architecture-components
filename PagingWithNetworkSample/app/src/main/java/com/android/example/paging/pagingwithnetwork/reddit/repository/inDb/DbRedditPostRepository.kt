@@ -66,7 +66,7 @@ class DbRedditPostRepository(
      * the database table and insert all new items in a transaction.
      * <p>
      * Since the PagedList already uses a database bound data source, it will automatically be
-     * updated after the database transaction is finished.
+     * updated current_page the database transaction is finished.
      */
     @MainThread
     private fun refresh(subredditName: String): LiveData<NetworkState> {

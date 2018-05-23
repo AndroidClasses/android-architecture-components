@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.example.paging.pagingwithnetwork.reddit.ui
+package com.android.example.paging.pagingwithnetwork.skin.ui
 
 import android.arch.paging.PagedListAdapter
 import android.support.v7.util.DiffUtil
@@ -24,20 +24,19 @@ import com.android.example.paging.pagingwithnetwork.GlideRequests
 import com.android.example.paging.pagingwithnetwork.R
 import com.android.example.paging.pagingwithnetwork.base.repository.NetworkState
 import com.android.example.paging.pagingwithnetwork.base.ui.NetworkStateItemViewHolder
-import com.android.example.paging.pagingwithnetwork.reddit.vo.RedditPost
+import com.android.example.paging.pagingwithnetwork.skin.vo.SkinPost
 
 /**
- * A simple adapter implementation that shows Reddit posts.
+ * A simple adapter implementation that shows Skin posts.
  */
-// 分页Adapter派生类，
-class PostsAdapter(
+class SkinAdapter(
         private val glide: GlideRequests,
         private val retryCallback: () -> Unit)
-    : PagedListAdapter<RedditPost, RecyclerView.ViewHolder>(POST_COMPARATOR) {
+    : PagedListAdapter<SkinPost, RecyclerView.ViewHolder>(POST_COMPARATOR) {
     private var networkState: NetworkState? = null
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            R.layout.reddit_post_item -> (holder as RedditPostViewHolder).bind(getItem(position))
+            R.layout.reddit_post_item -> (holder as SkinPostViewHolder).bind(getItem(position))
             R.layout.network_state_item -> (holder as NetworkStateItemViewHolder).bindTo(
                     networkState)
         }
@@ -49,7 +48,7 @@ class PostsAdapter(
             payloads: MutableList<Any>) {
         if (payloads.isNotEmpty()) {
             val item = getItem(position)
-            (holder as RedditPostViewHolder).updateScore(item)
+            (holder as SkinPostViewHolder).updateScore(item)
         } else {
             onBindViewHolder(holder, position)
         }
@@ -57,7 +56,7 @@ class PostsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            R.layout.reddit_post_item -> RedditPostViewHolder.create(parent, glide)
+            R.layout.reddit_post_item -> SkinPostViewHolder.create(parent, glide)
             R.layout.network_state_item -> NetworkStateItemViewHolder.create(parent, retryCallback)
             else -> throw IllegalArgumentException("unknown view type $viewType")
         }
@@ -95,14 +94,14 @@ class PostsAdapter(
 
     companion object {
         private val PAYLOAD_SCORE = Any()
-        val POST_COMPARATOR = object : DiffUtil.ItemCallback<RedditPost>() {
-            override fun areContentsTheSame(oldItem: RedditPost, newItem: RedditPost): Boolean =
+        val POST_COMPARATOR = object : DiffUtil.ItemCallback<SkinPost>() {
+            override fun areContentsTheSame(oldItem: SkinPost, newItem: SkinPost): Boolean =
                     oldItem == newItem
 
-            override fun areItemsTheSame(oldItem: RedditPost, newItem: RedditPost): Boolean =
+            override fun areItemsTheSame(oldItem: SkinPost, newItem: SkinPost): Boolean =
                     oldItem.name == newItem.name
 
-            override fun getChangePayload(oldItem: RedditPost, newItem: RedditPost): Any? {
+            override fun getChangePayload(oldItem: SkinPost, newItem: SkinPost): Any? {
                 return if (sameExceptScore(oldItem, newItem)) {
                     PAYLOAD_SCORE
                 } else {
@@ -111,11 +110,11 @@ class PostsAdapter(
             }
         }
 
-        private fun sameExceptScore(oldItem: RedditPost, newItem: RedditPost): Boolean {
+        private fun sameExceptScore(oldItem: SkinPost, newItem: SkinPost): Boolean {
             // DON'T do this copy in a real app, it is just convenient here for the demo :)
             // because reddit randomizes scores, we want to pass it as a payload to minimize
             // UI updates between refreshes
-            return oldItem.copy(score = newItem.score) == newItem
+            return oldItem.copy(name = newItem.name) == newItem
         }
     }
 }
